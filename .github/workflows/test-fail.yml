@@ -1,12 +1,30 @@
-name: Simulated Schema Mismatch
-on: workflow_dispatch
+name: Calculator CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
 jobs:
-  deploy:
+  build-test-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Run migration
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pytest
+
+      - name: Run tests
+        run: pytest test_calculator.py -v
+
+      - name: Simulate deploy step
         run: |
-          echo "Applying migration 2024_01_schema.sql..."
-          echo "ERROR: column 'premium_amount' does not exist in table 'policies'"
-          exit 1
+          echo "Deploying calculator app..."
+          python calculator.py <<< $'1\n5\n3'
+          echo "Deployment successful!"
